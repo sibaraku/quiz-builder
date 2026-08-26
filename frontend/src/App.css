@@ -54,11 +54,20 @@ header {
   border-bottom: 1px solid #e5e5e2;
 }
 .brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
   border: 0;
   background: none;
   font-size: 1.1rem;
   font-weight: 700;
   padding: 0;
+}
+.brand img {
+  display: block;
+  width: 54px;
+  height: 54px;
+  object-fit: contain;
 }
 nav {
   display: flex;
