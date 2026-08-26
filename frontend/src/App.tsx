@@ -66,18 +66,46 @@ function App() {
   async function createQuiz(event: FormEvent) {
     event.preventDefault();
     setError('');
+    const normalizedTitle = title.trim();
+    const normalizedQuestions = questions.map((question) => ({
+      ...question,
+      text: question.text.trim(),
+      answer: question.answer.trim(),
+      options: question.options.map((option) => option.trim()).filter(Boolean),
+      correctOptions: question.correctOptions.map((option) => option.trim()).filter(Boolean),
+    }));
+    const hasIncompleteQuestion = normalizedQuestions.some((question) => {
+      if (!question.text) return true;
+      if (question.type === 'boolean') return !['true', 'false'].includes(question.answer);
+      if (question.type === 'input') return !question.answer;
+      if (question.type === 'checkbox') {
+        const nonEmptyOptions = question.options.filter(Boolean);
+        return (
+          nonEmptyOptions.length < 2 ||
+          !question.correctOptions.some((option) => nonEmptyOptions.includes(option))
+        );
+      }
+      return false;
+    });
+    if (!normalizedTitle || hasIncompleteQuestion) {
+      setError('Please add a title and complete each question.');
+      return;
+    }
     try {
       const response = await fetch(`${API_URL}/quizzes`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title, questions }),
+        body: JSON.stringify({ title: normalizedTitle, questions: normalizedQuestions }),
       });
-      if (!response.ok) throw new Error();
+      if (!response.ok) {
+        const result = (await response.json().catch(() => null)) as { message?: string } | null;
+        throw new Error(result?.message ?? 'Could not save this quiz.');
+      }
       navigate('/quizzes');
       setTitle('');
       setQuestions([emptyQuestion()]);
-    } catch {
-      setError('Please add a title and complete each question.');
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Could not save this quiz.');
     }
   }
 
@@ -180,9 +208,11 @@ function App() {
                       options: question.options.map((item, itemIndex) =>
                         itemIndex === optionIndex ? event.target.value : item,
                       ),
+                      correctOptions: question.correctOptions.map((item) =>
+                        item === option ? event.target.value : item,
+                      ),
                     })
                   }
-                  required
                 />
                 <label className="inline">
                   <input
