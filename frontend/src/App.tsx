@@ -18,6 +18,7 @@ function App() {
   const [questions, setQuestions] = useState<Question[]>([emptyQuestion()]);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [quizToDelete, setQuizToDelete] = useState<QuizSummary | null>(null);
 
   // The URL is the navigation state, so loading follows route changes.
   useEffect(() => {
@@ -102,10 +103,16 @@ function App() {
     }
   }
 
-  async function deleteQuiz(id: number) {
-    if (!window.confirm('Delete this quiz?')) return;
+  function requestDelete(id: number) {
+    setQuizToDelete(quizzes.find((item) => item.id === id) ?? null);
+  }
+
+  async function confirmDelete() {
+    if (!quizToDelete) return;
+    const id = quizToDelete.id;
     await fetch(`${API_URL}/quizzes/${id}`, { method: 'DELETE' });
     setQuizzes((current) => current.filter((item) => item.id !== id));
+    setQuizToDelete(null);
   }
 
   function updateQuestion(index: number, changes: Partial<Question>) {
@@ -170,11 +177,36 @@ function App() {
           <QuizList
             quizzes={quizzes}
             onOpen={(id) => navigate(`/quizzes/${id}`)}
-            onDelete={deleteQuiz}
+            onDelete={requestDelete}
             onCreate={() => navigate('/create')}
           />
         )}
       </main>
+      {quizToDelete && (
+        <div className="modal-backdrop" onClick={() => setQuizToDelete(null)}>
+          <section
+            className="confirm-modal"
+            role="alertdialog"
+            aria-modal="true"
+            aria-labelledby="delete-dialog-title"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <p className="eyebrow">Delete quiz</p>
+            <h2 id="delete-dialog-title">Are you sure you want to delete it?</h2>
+            <p className="muted">
+              “{quizToDelete.title}” will be permanently removed from your quiz library.
+            </p>
+            <div className="modal-actions">
+              <button type="button" onClick={() => setQuizToDelete(null)}>
+                Cancel
+              </button>
+              <button className="danger" type="button" onClick={confirmDelete}>
+                Delete quiz
+              </button>
+            </div>
+          </section>
+        </div>
+      )}
     </>
   );
 }

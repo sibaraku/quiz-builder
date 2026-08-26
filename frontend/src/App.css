@@ -9,6 +9,32 @@
 }
 body {
   margin: 0;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 12% 8%, rgba(175, 194, 165, 0.34), transparent 28rem),
+    radial-gradient(circle at 88% 36%, rgba(224, 206, 157, 0.22), transparent 24rem),
+    linear-gradient(135deg, #f7f7f5 0%, #eef2e9 48%, #f8f4e8 100%);
+}
+
+body > * {
+  position: relative;
+  z-index: 1;
+}
+
+body::before {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  content: "";
+  opacity: 0.9;
+  filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.7));
+  background-image:
+    radial-gradient(circle at 18% 24%, #ffffff 0 1.5px, transparent 2px),
+    radial-gradient(circle at 74% 16%, #ffffff 0 1.5px, transparent 2px),
+    radial-gradient(circle at 91% 72%, #ffffff 0 1.5px, transparent 2px),
+    radial-gradient(circle at 43% 88%, #ffffff 0 1.5px, transparent 2px);
+  background-size: 180px 180px, 240px 240px, 210px 210px, 270px 270px;
+  pointer-events: none;
 }
 button,
 input,
@@ -241,6 +267,49 @@ legend {
   background: none;
   color: #a33c31;
   font-size: 0.85rem;
+}
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(32, 48, 31, 0.34);
+}
+.confirm-modal {
+  width: min(440px, 100%);
+  padding: 30px;
+  border: 1px solid #deded9;
+  background: #fffdf8;
+  box-shadow: 0 18px 50px rgba(32, 48, 31, 0.2);
+}
+.confirm-modal h2 {
+  margin-bottom: 10px;
+}
+.confirm-modal p {
+  margin-top: 0;
+}
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 26px;
+}
+.modal-actions button {
+  border: 1px solid #cfcfca;
+  border-radius: 3px;
+  padding: 10px 16px;
+  background: white;
+  color: #202124;
+}
+.modal-actions .danger {
+  border-color: #8d3027;
+  color: white;
+  background: #a33c31;
+}
+.modal-actions .danger:hover {
+  background: #78271f;
 }
 .empty {
   padding: 56px 0;
